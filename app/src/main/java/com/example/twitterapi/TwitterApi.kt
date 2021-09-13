@@ -13,7 +13,7 @@ interface TwitterApi {
         const val BASE_URL = "https://api.twitter.com/"
     }
 
-    @Headers("Authorization: Bearer $BEARER_TOKEN")
-    @GET("2/users/by/username/{username}")
-     fun searchUser(@Path("username") username: String): Call<Data>
+    @Headers("Accept: */*","Authorization: Bearer $BEARER_TOKEN")
+    @GET("/2/users/by/username/{username}")
+     fun searchUser(@Path("username") username: String): Call<TwitterData>
 }

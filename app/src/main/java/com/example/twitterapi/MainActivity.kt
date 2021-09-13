@@ -7,6 +7,7 @@ import com.example.twitterapi.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -15,7 +16,7 @@ import kotlin.coroutines.CoroutineContext
 class MainActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
-    private lateinit var twitter_data: Data
+    private lateinit var twitter_data: TwitterData
     private val TAG = "MainActivity"
     var user_details = ""
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,30 +25,27 @@ class MainActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
         binding = ActivityMainBinding.bind(view)
+        val twitterApi: TwitterApi = RetrofitBuilder.retrofitBuilder
 
-        val username = binding.editTextUsername.text.toString()
-        val twitterApi: TwitterApi =
-            RetrofitBuilder.provideRetrofit().create(TwitterApi::class.java)
-
-        val coroutineScope = CoroutineScope(Dispatchers.IO)
-
+        // val username = binding.editTextUsername.text.toString()
+        val call: Call<TwitterData> = twitterApi.searchUser("mcuban")
         fun getDataFromServer() {
-            val call: Call<Data> = twitterApi.searchUser(username)
-            call.enqueue(object : Callback<Data> {
-                override fun onResponse(call: Call<Data>, response: Response<Data>) {
-                    if(response.isSuccessful){
+            call.enqueue(object : Callback<TwitterData> {
+                override fun onResponse(call: Call<TwitterData>, response: Response<TwitterData>) {
+                    if (response.isSuccessful) {
                         twitter_data = response.body()!!
                         user_details =
-                            "id: ${twitter_data.id}\n name: ${twitter_data.name}\n username: $${twitter_data.username}"
+                            "id: ${twitter_data.data.id}\n name: ${twitter_data.data.name}\n username: ${twitter_data.data.username}"
                         binding.userDetails.text = user_details
-                    }else{
+                    } else {
                         binding.userDetails.text = response.code().toString()
                         return
                     }
                 }
 
-                override fun onFailure(call: Call<Data>, t: Throwable) {
-                    binding.userDetails.text = t.message                }
+                override fun onFailure(call: Call<TwitterData>, t: Throwable) {
+                    binding.userDetails.text = t.message
+                }
             })
         }
 
