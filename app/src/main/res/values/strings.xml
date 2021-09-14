@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">TwitterApi</string>
+    <string name="user_not_found">Could not find user with username</string>
 </resources>

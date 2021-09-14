@@ -2,6 +2,7 @@ package com.example.twitterapi
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
 import com.example.twitterapi.databinding.ActivityMainBinding
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity() {
                             user_details =
                                 "id: ${twitter_data.data.id}\nname: ${twitter_data.data.name}\nusername: ${twitter_data.data.username}"
                         }catch (e: Exception){
-                            Toast.makeText(applicationContext,"Twitter user not found",Toast.LENGTH_SHORT).show()
+                            binding.userDetails.text = getString(R.string.user_not_found)
                         }
                         if (user_details.isNotEmpty()) {
                             binding.userDetails.text = user_details
@@ -57,6 +58,8 @@ class MainActivity : AppCompatActivity() {
         }
         binding.searchButton.setOnClickListener {
             val username = binding.editTextUsername.text.toString()
+            val inputManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            inputManager.hideSoftInputFromWindow(currentFocus!!.windowToken,0)
             if (username.isNotEmpty()) {
                 getDataFromServer(username)
             } else {
