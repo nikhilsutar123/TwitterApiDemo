@@ -2,6 +2,7 @@ package com.example.twitterapi
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.EditText
 import android.widget.Toast
 import com.example.twitterapi.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineScope
@@ -19,24 +20,30 @@ class MainActivity : AppCompatActivity() {
     private lateinit var twitter_data: TwitterData
     private val TAG = "MainActivity"
     var user_details = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-        binding = ActivityMainBinding.bind(view)
+
         val twitterApi: TwitterApi = RetrofitBuilder.retrofitBuilder
 
-        // val username = binding.editTextUsername.text.toString()
-        val call: Call<TwitterData> = twitterApi.searchUser("mcuban")
-        fun getDataFromServer() {
+        fun getDataFromServer(username: String) {
+            val call: Call<TwitterData> = twitterApi.searchUser(username)
             call.enqueue(object : Callback<TwitterData> {
                 override fun onResponse(call: Call<TwitterData>, response: Response<TwitterData>) {
                     if (response.isSuccessful) {
                         twitter_data = response.body()!!
-                        user_details =
-                            "id: ${twitter_data.data.id}\n name: ${twitter_data.data.name}\n username: ${twitter_data.data.username}"
-                        binding.userDetails.text = user_details
+                        try {
+                            user_details =
+                                "id: ${twitter_data.data.id}\nname: ${twitter_data.data.name}\nusername: ${twitter_data.data.username}"
+                        }catch (e: Exception){
+                            Toast.makeText(applicationContext,"Twitter user not found",Toast.LENGTH_SHORT).show()
+                        }
+                        if (user_details.isNotEmpty()) {
+                            binding.userDetails.text = user_details
+                        }
                     } else {
                         binding.userDetails.text = response.code().toString()
                         return
@@ -48,11 +55,13 @@ class MainActivity : AppCompatActivity() {
                 }
             })
         }
-
-
         binding.searchButton.setOnClickListener {
-            Toast.makeText(applicationContext, "clicked", Toast.LENGTH_SHORT).show()
-            getDataFromServer()
+            val username = binding.editTextUsername.text.toString()
+            if (username.isNotEmpty()) {
+                getDataFromServer(username)
+            } else {
+                Toast.makeText(applicationContext, "enter username", Toast.LENGTH_SHORT).show()
+            }
         }
 
         binding.userDetails.text = user_details
