@@ -36,13 +36,11 @@ class MainActivity : AppCompatActivity() {
                 override fun onResponse(call: Call<TwitterData>, response: Response<TwitterData>) {
                     if (response.isSuccessful) {
                         twitter_data = response.body()!!
-                        try {
-                            user_details =
-                                "id: ${twitter_data.data.id}\nname: ${twitter_data.data.name}\nusername: ${twitter_data.data.username}"
-                        }catch (e: Exception){
+                        user_details =
+                            "id: ${twitter_data.data?.id}\nname: ${twitter_data.data?.name}\nusername: ${twitter_data.data?.username}"
+                        if (twitter_data.data == null) {
                             binding.userDetails.text = getString(R.string.user_not_found)
-                        }
-                        if (user_details.isNotEmpty()) {
+                        } else {
                             binding.userDetails.text = user_details
                         }
                     } else {
@@ -50,7 +48,6 @@ class MainActivity : AppCompatActivity() {
                         return
                     }
                 }
-
                 override fun onFailure(call: Call<TwitterData>, t: Throwable) {
                     binding.userDetails.text = t.message
                 }
@@ -59,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         binding.searchButton.setOnClickListener {
             val username = binding.editTextUsername.text.toString()
             val inputManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-            inputManager.hideSoftInputFromWindow(currentFocus!!.windowToken,0)
+            inputManager.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
             if (username.isNotEmpty()) {
                 getDataFromServer(username)
             } else {
