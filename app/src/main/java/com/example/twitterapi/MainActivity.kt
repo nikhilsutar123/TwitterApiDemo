@@ -63,9 +63,5 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(applicationContext, "enter username", Toast.LENGTH_SHORT).show()
             }
         }
-
-        binding.userDetails.text = user_details
     }
-
-
 }
